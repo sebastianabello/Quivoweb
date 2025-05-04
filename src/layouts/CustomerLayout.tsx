@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.svg";
 import { MdLanguage } from "react-icons/md";
 
@@ -37,9 +38,12 @@ export default function CustomerLayout({ children, headerContent }: Props) {
         </Link>
 
         {/* CENTRO DINÁMICO */}
-        <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-2xl transition-all duration-300 ease-in-out min-h-[2.5rem] flex justify-center">
-          {headerContent}
+        <div className="absolute left-1/2 -translate-x-1/2 transform -translate-y-1/2 top-1/2 hidden md:block">
+          <AnimatePresence mode="wait">
+            {headerContent}
+          </AnimatePresence>
         </div>
+
 
         {/* DERECHA: Icono idioma + Login */}
         <div className="flex items-center gap-3">

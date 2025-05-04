@@ -4,6 +4,7 @@ import SearchBar from "../../components/SearchBar";
 import RoomCard from "../../components/RoomCard";
 import { getRooms } from "../../services/roomService";
 import { Room } from "../../types/Room";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -59,20 +60,40 @@ export default function Home() {
     return matchesSearch && matchesMin && matchesMax && matchesCategory;
   });
 
-  const headerContent = isScrolled ? (
-    <SearchBar
-      value={filter.search}
-      onChange={(e) => handleFilterChange("search", e.target.value)}
-      onFilterClick={() => {}}
-      onCategorySelect={setSelectedCategory}
-      selectedCategory={selectedCategory}
-      className="scale-90"
-    />
-  ) : (
-    <span className="text-sm text-gray-600 hidden md:inline-block">
-      Reserva tu alojamiento con Quivo
-    </span>
+  const headerContent = (
+    <AnimatePresence mode="wait">
+      {isScrolled ? (
+        <motion.div
+          key="search"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <SearchBar
+            value={filter.search}
+            onChange={(e) => handleFilterChange("search", e.target.value)}
+            onFilterClick={() => {}}
+            onCategorySelect={setSelectedCategory}
+            selectedCategory={selectedCategory}
+            className="scale-90"
+          />
+        </motion.div>
+      ) : (
+        <motion.span
+          key="text"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="text-sm text-gray-600"
+        >
+          Reserva tu alojamiento con Quivo
+        </motion.span>
+      )}
+    </AnimatePresence>
   );
+
 
   return (
     <CustomerLayout headerContent={headerContent}>
@@ -101,11 +122,23 @@ export default function Home() {
       {filteredRooms.length === 0 ? (
         <p className="text-center text-gray-500">No se encontraron resultados</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredRooms.map((room) => (
-            <RoomCard key={room.code} room={room} />
-          ))}
-        </div>
+        <AnimatePresence mode="popLayout">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredRooms.map((room, index) => (
+              <motion.div
+                key={room.code}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                layout
+              >
+                <RoomCard room={room} />
+              </motion.div>
+            ))}
+          </div>
+        </AnimatePresence>
+
       )}
 
       {/* Paginación */}
