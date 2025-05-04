@@ -1,10 +1,7 @@
-import axios from 'axios'
+import axios from "axios";
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080', // <-- cambia esto a tu API real
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
+  baseURL: "http://localhost:8081", // directamente al backend
+});
 
-export default instance
+export default instance;

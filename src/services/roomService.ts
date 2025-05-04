@@ -1,5 +1,6 @@
 import axios from "../lib/axios";
-export const getAvailableRooms = async () => {
-  const res = await axios.get("/api/rooms/available");
-  return res.data;
+
+export const getRooms = async (page = 1) => {
+  const response = await axios.get(`/api/rooms?page=${page}`);
+  return response.data;
 };

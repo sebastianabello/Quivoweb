@@ -1,27 +1,35 @@
 import React from "react";
 import { FaStar } from "react-icons/fa";
+import { Room } from "../types/Room";
 
-type RoomCardProps = {
-  title: string;
-  rating: number;
-  price: number;
+type Props = {
+  room: Room;
 };
 
-export default function RoomCard({ title, rating, price }: RoomCardProps) {
+export default function RoomCard({ room }: Props) {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="h-40 bg-gray-300" />
-      <div className="p-4">
-        <div className="text-sm font-semibold mb-1">{title}</div>
-        <div className="flex items-center text-sm text-gray-700">
-          <FaStar className="text-yellow-400 mr-1" /> {rating}
+    <div className="bg-white rounded-lg shadow overflow-hidden h-full flex flex-col">
+      <img
+        src={room.imageUrl}
+        alt={room.name}
+        className="h-40 w-full object-cover"
+      />
+      <div className="p-4 flex flex-col flex-1">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-sm font-semibold text-gray-900">{room.name}</h2>
+          <div className="flex items-center gap-1 text-sm text-gray-600">
+            <FaStar className="text-gray-900"/>
+            <span>4.8</span>
+          </div>
         </div>
-        <div className="text-sm mt-1">
-          <span className="text-teal-600 font-semibold">
-            ${price.toLocaleString()}
-          </span> por noche
+
+        <p className="text-xs text-gray-500 mb-2">{room.description}</p>
+        <div className="mt-auto text-teal-600 font-semibold">
+          ${room.price.toLocaleString()} <span className="text-sm text-gray-500 font-normal">por noche</span>
         </div>
       </div>
     </div>
   );
 }
+
+
