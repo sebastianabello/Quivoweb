@@ -1,7 +1,9 @@
+// components/BookingBox.tsx
 import React, { useState, useRef, useEffect } from "react";
 import { Room } from "../types/Room";
 import { DateRange } from "react-date-range";
-import { addDays, format } from "date-fns";
+import { addDays, format, differenceInCalendarDays } from "date-fns";
+import toast from "react-hot-toast";
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
@@ -12,8 +14,8 @@ interface Props {
 export default function BookingBox({ room }: Props) {
   const [guest, setGuest] = useState(1);
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "" });
+  const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef(null);
 
@@ -22,7 +24,7 @@ export default function BookingBox({ room }: Props) {
       startDate: new Date(),
       endDate: addDays(new Date(), 1),
       key: 'selection',
-      color: '#0f766e', // teal-700
+      color: '#0f766e',
     },
   ]);
 
@@ -36,21 +38,50 @@ export default function BookingBox({ room }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleBooking = async () => {
-    const inDate = range[0].startDate?.toISOString().split('T')[0];
-    const outDate = range[0].endDate?.toISOString().split('T')[0];
+  const validateFields = () => {
+    const newErrors = { name: "", email: "", phone: "" };
+    let valid = true;
 
-    if (!inDate || !outDate) return alert("Seleccione fechas válidas");
+    if (!customer.name.trim()) {
+      newErrors.name = "Nombre requerido";
+      valid = false;
+    }
+    if (!customer.email.trim()) {
+      newErrors.email = "Correo requerido";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(customer.email)) {
+      newErrors.email = "Correo inválido";
+      valid = false;
+    }
+    if (!customer.phone.trim()) {
+      newErrors.phone = "Teléfono requerido";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleBooking = async () => {
+    const start = range[0].startDate;
+    const end = range[0].endDate;
+    const inDate = start?.toISOString().split('T')[0];
+    const outDate = end?.toISOString().split('T')[0];
+
+    if (!start || !end || !inDate || !outDate) return toast.error("Seleccione un rango de fechas válido");
+
+    const nights = differenceInCalendarDays(end, start);
+    if (nights < 1) return toast.error("Debe seleccionar al menos una noche");
+
+    if (!validateFields()) return toast.error("Por favor corrija los errores en el formulario");
 
     setLoading(true);
+    const toastId = toast.loading("Enviando reserva...");
     try {
       const payload = {
         items: [{ code: room.code, name: room.name, price: room.price, guest }],
         customer,
-        checkDate: {
-          in_date: inDate,
-          out_date: outDate,
-        },
+        checkDate: { in_date: inDate, out_date: outDate },
       };
 
       const res = await fetch("http://localhost:8082/api/bookings", {
@@ -60,13 +91,13 @@ export default function BookingBox({ room }: Props) {
       });
 
       if (res.ok) {
-        setSuccess(true);
+        toast.success("¡Reserva realizada con éxito!", { id: toastId });
       } else {
-        alert("Error al reservar");
+        toast.error("Error al reservar", { id: toastId });
       }
     } catch (err) {
       console.error(err);
-      alert("Error inesperado");
+      toast.error("Error inesperado", { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -94,14 +125,17 @@ export default function BookingBox({ room }: Props) {
               editableDateInputs={true}
               onChange={(item) => {
                 setRange([item.selection]);
-                if (item.selection.startDate && item.selection.endDate && item.selection.startDate !== item.selection.endDate) {
+                if (
+                  item.selection.startDate &&
+                  item.selection.endDate &&
+                  item.selection.startDate !== item.selection.endDate
+                ) {
                   setShowCalendar(false);
                 }
               }}
-
               moveRangeOnFirstSelection={false}
               ranges={range}
-              rangeColors={["#0f766e"]} // override default blue
+              rangeColors={["#0f766e"]}
             />
           </div>
         )}
@@ -132,7 +166,9 @@ export default function BookingBox({ room }: Props) {
           onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
         />
+        {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
       </div>
+
       <div className="mb-2">
         <label className="text-sm font-medium text-gray-700 block mb-1">Correo electrónico</label>
         <input
@@ -141,7 +177,9 @@ export default function BookingBox({ room }: Props) {
           onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
         />
+        {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
       </div>
+
       <div className="mb-4">
         <label className="text-sm font-medium text-gray-700 block mb-1">Teléfono</label>
         <input
@@ -150,20 +188,17 @@ export default function BookingBox({ room }: Props) {
           onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
         />
+        {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
       </div>
 
       {/* Botón */}
       <button
         onClick={handleBooking}
         disabled={loading}
-        className="w-full bg-gradient-to-r bg-teal-600 hover:to-teal-700 text-white font-semibold py-2 rounded text-sm"
+        className="w-full bg-gradient-to-r bg-teal-700 hover:bg-teal-600 text-white font-semibold py-2 rounded text-sm"
       >
         {loading ? "Reservando..." : "Reserva"}
       </button>
-
-      {success && (
-        <p className="mt-3 text-green-600 text-sm font-medium">¡Reserva realizada con éxito!</p>
-      )}
     </div>
   );
 }

@@ -6,9 +6,10 @@ import { FaSearch, FaFilter, FaChevronDown } from "react-icons/fa";
 interface Props {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onFilterClick: () => void;
+  onFilterClick?: () => void;
   onCategorySelect: (category: string) => void;
   selectedCategory: string;
+  className?: string;
 }
 
 export default function SearchBar({
@@ -17,6 +18,7 @@ export default function SearchBar({
   onFilterClick,
   onCategorySelect,
   selectedCategory,
+  className = "",
 }: Props) {
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const menuRef = useRef(null);
@@ -41,7 +43,7 @@ export default function SearchBar({
   ];
 
   return (
-    <div className="flex justify-center gap-2 mb-6 relative">
+    <div className={`flex justify-center gap-2 relative ${className}`}>
       <div className="bg-gray-100 px-4 py-2 rounded-full flex items-center w-full max-w-2xl relative">
         <button
           onClick={() => setShowCategoryMenu(!showCategoryMenu)}
@@ -56,9 +58,11 @@ export default function SearchBar({
           value={value}
           onChange={onChange}
         />
-        <Button size="icon" className="rounded-full mr-2" onClick={onFilterClick}>
-          <FaFilter />
-        </Button>
+        {onFilterClick && (
+          <Button size="icon" className="rounded-full mr-2" onClick={onFilterClick}>
+            <FaFilter />
+          </Button>
+        )}
         <Button size="icon" className="rounded-full">
           <FaSearch />
         </Button>

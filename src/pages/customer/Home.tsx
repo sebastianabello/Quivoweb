@@ -13,9 +13,10 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filter, setFilter] = useState({
     search: "",
-    minPrice: '',
+    minPrice: 0,
     maxPrice: 10000,
   });
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const handleFilterChange = (key: string, value: string | number) => {
     setFilter((prev) => ({ ...prev, [key]: value }));
@@ -37,6 +38,18 @@ export default function Home() {
     fetchRooms(currentPage);
   }, [currentPage]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const hero = document.getElementById("hero-title");
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      setIsScrolled(rect.bottom <= 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const filteredRooms = rooms.filter((room) => {
     const matchesSearch = room.name.toLowerCase().includes(filter.search.toLowerCase());
     const matchesMin = room.price >= Number(filter.minPrice);
@@ -46,9 +59,24 @@ export default function Home() {
     return matchesSearch && matchesMin && matchesMax && matchesCategory;
   });
 
+  const headerContent = isScrolled ? (
+    <SearchBar
+      value={filter.search}
+      onChange={(e) => handleFilterChange("search", e.target.value)}
+      onFilterClick={() => {}}
+      onCategorySelect={setSelectedCategory}
+      selectedCategory={selectedCategory}
+      className="scale-90"
+    />
+  ) : (
+    <span className="text-sm text-gray-600 hidden md:inline-block">
+      Reserva tu alojamiento con Quivo
+    </span>
+  );
+
   return (
-    <CustomerLayout>
-      <section className="text-center max-w-3xl mx-auto mb-8">
+    <CustomerLayout headerContent={headerContent}>
+      <section id="hero-title" className="text-center max-w-3xl mx-auto mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">
           Convierte tu estadía en una experiencia inolvidable
         </h1>
@@ -60,9 +88,10 @@ export default function Home() {
       <SearchBar
         value={filter.search}
         onChange={(e) => handleFilterChange("search", e.target.value)}
-        onFilterClick={() => setShowFilters(true)}
+        onFilterClick={isScrolled ? undefined : () => setShowFilters(true)}
         onCategorySelect={setSelectedCategory}
         selectedCategory={selectedCategory}
+        className='mb-6'
       />
 
       <p className="text-center text-xs text-gray-500 mb-6">
