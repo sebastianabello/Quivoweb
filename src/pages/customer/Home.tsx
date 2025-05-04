@@ -1,4 +1,3 @@
-// pages/customer/Home.tsx
 import React, { useEffect, useState } from "react";
 import CustomerLayout from "../../layouts/CustomerLayout";
 import SearchBar from "../../components/SearchBar";
@@ -40,7 +39,7 @@ export default function Home() {
 
   const filteredRooms = rooms.filter((room) => {
     const matchesSearch = room.name.toLowerCase().includes(filter.search.toLowerCase());
-    const matchesMin = room.price >= filter.minPrice;
+    const matchesMin = room.price >= Number(filter.minPrice);
     const matchesMax = room.price <= filter.maxPrice;
     const matchesCategory =
       !selectedCategory || room.name.toLowerCase().includes(selectedCategory.toLowerCase());
