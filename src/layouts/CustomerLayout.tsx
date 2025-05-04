@@ -26,10 +26,10 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
     <div className="font-opensans min-h-screen flex flex-col">
       <header className="relative w-full h-20 px-4 md:px-10 xl:px-20 flex items-center justify-between bg-white shadow">
         {/* IZQUIERDA: Logo + Nombre */}
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="Quivo" className="h-8" />
           <span className="text-teal-700 text-xl font-bold">Quivo</span>
-        </div>
+        </Link>
 
         {/* CENTRO: Texto centrado */}
         <div className="absolute left-1/2 -translate-x-1/2 text-sm font-medium text-gray-600 hidden md:block">
