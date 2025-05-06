@@ -14,7 +14,7 @@ export default function RoomDetail() {
   const [room, setRoom] = useState<RoomWithGallery | null>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8081/api/rooms/${code}`)
+    fetch(`http://localhost:8989/inventory/api/rooms/${code}`)
       .then((res) => res.json())
       .then(setRoom)
       .catch((err) => console.error("Error cargando detalle de habitación", err));

@@ -4,6 +4,7 @@ import { Room } from "../types/Room";
 import { DateRange } from "react-date-range";
 import { addDays, format, differenceInCalendarDays } from "date-fns";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
@@ -18,6 +19,7 @@ export default function BookingBox({ room }: Props) {
   const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef(null);
+  const navigate = useNavigate();
 
   const [range, setRange] = useState([
     {
@@ -84,14 +86,16 @@ export default function BookingBox({ room }: Props) {
         checkDate: { in_date: inDate, out_date: outDate },
       };
 
-      const res = await fetch("http://localhost:8082/api/bookings", {
+      const res = await fetch("http://localhost:8989/bookings/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.reservationNumber) {
         toast.success("¡Reserva realizada con éxito!", { id: toastId });
+        navigate(`/booking/${data.reservationNumber}`);
       } else {
         toast.error("Error al reservar", { id: toastId });
       }
