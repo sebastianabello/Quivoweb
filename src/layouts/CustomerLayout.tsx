@@ -76,6 +76,7 @@ export default function CustomerLayout({ children, headerContent }: Props) {
                 <Link to="/register" className="block px-4 py-2 hover:bg-gray-100">Regístrate</Link>
                 <hr className="my-1 border-t border-gray-300" />
                 <button className="w-full text-left px-4 py-2 hover:bg-gray-100">Organiza una experiencia</button>
+                <Link to="/bookings" className="block px-4 py-2 hover:bg-gray-100">Consultar reservas</Link>
                 <button className="w-full text-left px-4 py-2 hover:bg-gray-100">Centro de ayuda</button>
               </div>
             )}

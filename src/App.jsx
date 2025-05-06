@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/customer/Home'
 import RoomDetail from "./pages/customer/RoomDetail";
 import BookingDetail from "./pages/customer/BookingDetail";
+import AllBookings from "./pages/customer/AllBookings";
+
 
 function App() {
   return (
@@ -10,6 +12,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/rooms/:code" element={<RoomDetail />} />
         <Route path="/booking/:reservationNumber" element={<BookingDetail />} />
+        <Route path="/bookings" element={<AllBookings />} />
       </Routes>
     </BrowserRouter>
   )
